@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <iostream>
+using namespace std;
+
+// Implementación de colas con arreglos circulares
+class cola {
+private:
+    int elem[MAXCOLA];
+    int longitud;   // longitud de la cola
+    int frente;     // Ubicación en el arreglo circular del primer elemento
+    int ultimo;     // Ubicación en el arreglo circular del último elemento
+
+public:
+    cola(){ longitud=frente=ultimo=0;};
+    void vaciar(){ longitud=frente=ultimo=0;};
+    bool encolar(int x);
+    bool desencolar (int& x);
+    bool top(int& x);
+    bool vacia(){ return (longitud==0);};
+    bool llena(){ return (longitud==MAXCOLA);};
+};
+
+// Inserta el elemento enviado como parámetro en la cola, falso si la cola está llena
+bool cola::encolar(int dato){
+    if (llena())
+        return false;
+    longitud++;
+    elem[ultimo] = dato;
+    ultimo = (ultimo+1)%MAXCOLA;
+    return true;
+}
+
+// Devuelve el primer elemento de la cola, falso si la cola está vacia
+bool cola::desencolar(int& dato){
+    if(vacia())
+        return false;
+    longitud--;
+    dato=elem[frente];
+    frente = (frente+1)%MAXCOLA;
+    return true;
+}
+
+// Saca el elemento del tope de la pila y lo devuelve el el parámetro dato
+bool cola::top(int& dato){
+    if(vacia())
+        return false;
+    dato=elem[frente];
+    return true;
+}
+
+//--- main ---
+
+int main(){
+
+    cola Q;
+    int e;
+
+    cout << "Implementacion de Colas" << endl;
+
+    Q.encolar(1);
+    Q.encolar(2);
+    Q.encolar(3);
+    Q.encolar(4);
+    Q.encolar(5);
+
+    Q.top(e);
+    cout << endl << "El elemento del tope es " << e << endl;
+
+    while(Q.desencolar(e))
+        cout << e << endl;
+
+    return 0;
+}
