@@ -36,7 +36,8 @@ ostream& operator<<(ostream& stream, const Client& c){
 }
 
 ostream& operator<<(ostream& stream, const List& l){
+    stream << endl;
     for(Node* i = l.first; i; i = i->next)
         stream << i->info << endl;
     return stream;
-} 
+}

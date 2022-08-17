@@ -1,7 +1,7 @@
 #ifndef List_hpp
 #define List_hpp
 
-//listas con clases funciones 
+//listas con clases funciones
 #include <iostream>
 #include <cstdlib>
 
@@ -18,7 +18,7 @@ struct Node{
 
     Client info;
     Node* next;
-    
+
     Node(const Client& c=Client(), Node* n=NULL): info(c), next(n){};
 };
 
@@ -36,10 +36,10 @@ class List{
         ~List() { while(pop()); }; // Destructor
 
         bool empty() const{ return first == NULL; }; //Lista vacia
-        
+
         bool push(const Client&); //Inserta en Orden las palabras
         bool pop(); //Elimina una palabra
-        
+
         const Client& front() const { return first->info; };
 };
 

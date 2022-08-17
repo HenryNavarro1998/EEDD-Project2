@@ -14,98 +14,67 @@
 
 using namespace std;
 
-// --- funciones ---  
+struct Limits {
+	int lower;
+	int upper;
 
-// void option(string&);
-// void question(List&);
-// void shopping();
-// void process(int, int, List&);
-// int lengthMax(List&);
-// int AverageTime();
-// int AverageTimeG();
-// int nroClientes();
-void initialData(int&,int&,int&,int&,int&);
+	Limits(int l=0, int u=0): lower(l), upper(u) {};
+	int randValue() { return (rand() % upper) + lower; };
+};
+
+void initialData(int&,Limits&,Limits&);
 int sleep(const float);
 
 //Funcion Main
 int main(){
-	// string opc = "1";
- //    int carrito = 20;
- //    int timeSimulation;
- //    int randL;
-	// List l[3];
-    
- //    while(opc != "2"){
- //    	option(opc);
-
- //    	if (opc == "1"){
- //    		question(l);
- //    		process();
-	// 	}
- //    }
 
 	List waiting;
 	List cashRegister[3];
-	int time = 0;
+	Limits new_client_time;
+	Limits shopping_time;
+	int simulation_time;
+	int current_time = 0;
 	int client_time = 0;
 	int shop_time = 0;
-	int simulation_time;
-	int client_inf_time; 
-	int client_sup_time;
-	int shop_inf_time;
-	int shop_sup_time;
+
 	srand(time(NULL));
+	initialData(simulation_time, new_client_time, shopping_time);
 
-	initialData(
-		simulation_time,
-		client_inf_time,
-		client_sup_time,
-		shop_inf_time,
-		shop_sup_time		
-	);	
-
-	while(time < simulation_time){
+	while(current_time < simulation_time){
 
 		if(!client_time){
-			l.push(Client("Cliente"));
-			client_time = (rand() % client_sup_time) + client_inf_time;
+			waiting.push(Client("Cliente"));
+			client_time = new_client_time.randValue();
 		}
 
-		if(!shop_time){
-
-		}
-
-		cout << l << endl;
-		cout << "Tiempo transcurrido: " << time << endl;
-		cout << "Tiempo restante: " << simulation_time - time << endl;
+		cout << waiting << endl;
+		cout << "Tiempo transcurrido: " << current_time << endl;
+		cout << "Tiempo restante: " << simulation_time - current_time << endl;
 		client_time--;
-		time += sleep(1);
+		current_time += sleep(1);
 	}
 
-	cout << l;
+	cout << waiting;
 
     return 0;
 }
 
-void initialData(
-	int& simulation_time, int& client_inf_time,
-	int& client_sup_time, int& shop_inf_time, 
-	int& shop_sup_time){
+void initialData(int& simulation_time, Limits& new_client_time, Limits& shop_time){
 
 	cout << "Ingrese el tiempo de ejecucion (seg): ";
 	cin >> simulation_time;
 
 	cout << "Limite inferior para la llegada de un nuevo cliente (seg): ";
-	cin >> client_inf_time;
+	cin >> new_client_time.lower;
 
 	cout << "Limite superior para la llegada de un nuevo cliente (seg): ";
-	cin >> client_sup_time;
+	cin >> new_client_time.upper;
 
 	cout << "Limite inferior para la compra (seg): ";
-	cin >> shop_sup_time;
+	cin >> shop_time.lower;
 
 	cout << "Limite superior para la compra (seg): ";
-	cin >> shop_sup_time;
+	cin >> shop_time.upper;
 
 }
 
@@ -117,13 +86,13 @@ int sleep(const float seconds){
     while(clock() < (start + (seconds * CLOCKS_PER_SEC)));
     return 1;
 }
- 
+
 // // --- funciones desarrolladas ---
 // void option(string& opc){
 
 // 	do{
 // 		system("cls || clear");
-		
+
 // 		cout << "\t\t--- Ingrese una opcion ---" << endl;
 // 		cout << "\t\t[1] Iniciar la simulacion" << endl;
 // 		cout << "\t\t[2] Salir" << endl;
