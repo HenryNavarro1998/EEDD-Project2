@@ -9,7 +9,7 @@ using namespace std;
 
 struct Client{
 
-    string name;
+    int time;
 
     Client(const string& n=""): name(n) {};
 };
