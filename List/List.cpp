@@ -33,6 +33,13 @@ bool List::pop(){
     return true;
 }
 
+const int List::getListTime() const {
+   int acum = 0;
+    for(Node* i = first; i; i = i->next)
+        acum += i->info.time;
+    return acum;
+}
+
 ostream& operator<<(ostream& stream, const Client& c){
     stream << c.time;
     return stream;

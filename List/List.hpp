@@ -43,9 +43,11 @@ class List{
         bool pop(); //Elimina una palabra
 
         const Client front() const { return first->info; };
+        const int getListTime() const;
         const int getLength() const { return length; };
         const int getMaxLength() const { return maxLength; };
         const int getCompleted() const { return completed; };
+        const float averageTime() const{ return getListTime() / getLength(); };
         void decrementTime() { if(!empty()) first->info.time--; };
 };
 

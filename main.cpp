@@ -33,6 +33,8 @@ void printCashRegisters(const CashRegister*);
 void printLengthSummary(const CashRegister*);
 int sleep(const float);
 int min(const CashRegister*);
+void printAverageSummary(const CashRegister*);
+void printClientSummary(const CashRegister*);
 
 int main(){
 
@@ -105,13 +107,14 @@ int main(){
 
 	cout << "\n\t----------\tRESUMEN FINAL\t----------\n";
 	printLengthSummary(cashQueue);
+	printAverageSummary(cashQueue);
+	printClientSummary(cashQueue);
 	
-
     return 0;
 }
 
-void initialData(int& simulation_time, Limits& new_client_time,
-				Limits& shop_time, CashRegister* cashQueue){
+
+void initialData(int& simulation_time, Limits& new_client_time,Limits& shop_time, CashRegister* cashQueue){
 
 	cout << "Ingrese el tiempo de ejecucion (seg): ";
 	cin >> simulation_time;
@@ -133,6 +136,7 @@ void initialData(int& simulation_time, Limits& new_client_time,
 		cin >> cashQueue[i].time;
 	}
 
+	return;
 }
 
 void printCashRegisters(const CashRegister* cashQueue){
@@ -150,19 +154,49 @@ void printCashRegisters(const CashRegister* cashQueue){
 	}
 
 	cout << "\n\tTotal en Cajas:" << acumLength << endl;
-
+	return;
 }
 
 void printLengthSummary(const CashRegister* cashQueue){
 	int acumLength = 0;
 
-	cout << "- Longitudes Maximas:" << endl;
+	cout << "\t- Longitudes Maximas:" << endl;
 	for(int i=0; i<N; i++){
 		acumLength += cashQueue[i].clients.getLength();
-		cout << "\t\t- Caja #" << i+1 << cashQueue[i].clients.getMaxLength();
+		cout << "\t\t- Caja #" << i+1 << ": " << cashQueue[i].clients.getMaxLength() << " Clientes" << endl;
 	}
 
-	cout << "\t- Longitud Promedio al finalizar: " << acumLength/N << endl;
+	cout << "\t- Longitud Promedio al finalizar: " << (float)(acumLength / N)  << " Clientes" << endl;
+}
+
+void printAverageSummary(const CashRegister* cashQueue){
+
+	int acumTime = 0;
+
+	cout << "\t- Tiempos de por Caja:" << endl;
+	
+	for(int i=0; i<N; i++){
+		cout << "\t\t- Caja #" << i+1 << ": " << cashQueue[i].clients.getListTime() << " sg" << endl;
+		acumTime += cashQueue[i].clients.getListTime();
+	}
+	
+	cout << "\t- Tiempo de espera promedio global: " << (float)(acumTime / N) << " sg" << endl;
+
+	return;
+}
+
+void printClientSummary(const CashRegister* cashQueue){
+
+	int acumClients = 0;
+
+	cout << "\t- Total Clientes Atendidos:" << endl;
+	for(int i = 0; i < N; i++){
+		acumClients += cashQueue[i].clients.getCompleted();
+		cout << "\t\t- Caja #" << i+1 << ": " << cashQueue[i].clients.getCompleted() << " Clientes" << endl;
+	}
+
+	cout << "\t- Total Clientes Atendidos Global: " << acumClients << " Clientes" << endl;
+
 }
 
 int sleep(const float seconds){
