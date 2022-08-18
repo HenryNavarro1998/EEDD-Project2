@@ -12,8 +12,10 @@ bool List::push(const Client& client){
     else
         last->next = node;
 
+
     last = node;
     length++;
+    maxLength = (maxLength < length)? length : maxLength; 
     return true;
 }
 
@@ -27,17 +29,17 @@ bool List::pop(){
 
     delete aux;
     length--;
+    completed++;
     return true;
 }
 
 ostream& operator<<(ostream& stream, const Client& c){
-    stream << c.name;
+    stream << c.time;
     return stream;
 }
 
 ostream& operator<<(ostream& stream, const List& l){
-    stream << endl;
     for(Node* i = l.first; i; i = i->next)
-        stream << i->info << endl;
+        stream << i->info << " -> ";
     return stream;
 }

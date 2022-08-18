@@ -11,7 +11,7 @@ struct Client{
 
     int time;
 
-    Client(const string& n=""): name(n) {};
+    Client(const int t=0): time(t){};
 };
 
 struct Node{
@@ -25,14 +25,16 @@ struct Node{
 //Clase Lista
 class List{
 
-    //Seccion Privada
-    private:
+    //Seccion Protected
+    protected:
         Node *first, *last; // Cabeza y Cola de la Lista
         int length;
+        int maxLength;
+        int completed;
         friend ostream& operator<<(ostream&, const List&); // Sobrecarga del operador '<<''
 
     public:
-        List(): first(NULL), last(NULL), length(0){}; // Constructor
+        List(): first(NULL), last(NULL), length(0), maxLength(0), completed(0){}; // Constructor
         ~List() { while(pop()); }; // Destructor
 
         bool empty() const{ return first == NULL; }; //Lista vacia
@@ -40,7 +42,11 @@ class List{
         bool push(const Client&); //Inserta en Orden las palabras
         bool pop(); //Elimina una palabra
 
-        const Client& front() const { return first->info; };
+        const Client front() const { return first->info; };
+        const int getLength() const { return length; };
+        const int getMaxLength() const { return maxLength; };
+        const int getCompleted() const { return completed; };
+        void decrementTime() { if(!empty()) first->info.time--; };
 };
 
 //Sobrecarga del operador '<<' para las palabras y las listas

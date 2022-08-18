@@ -11,55 +11,101 @@
 #include <cstdlib>
 #include <ctime>
 #include "List/List.hpp"
+#include "DeltaList/DeltaList.hpp"
 
 using namespace std;
 
-struct Limits {
+const int N = 3;
+
+struct Limits{
 	int lower;
 	int upper;
-
-	Limits(int l=0, int u=0): lower(l), upper(u) {};
-	int randValue() { return (rand() % upper) + lower; };
+	int randValue() { return (rand() % (upper-lower)) + lower; };
 };
 
-void initialData(int&,Limits&,Limits&);
-int sleep(const float);
+struct CashRegister{
+	int time;
+	List clients;
+};
 
-//Funcion Main
+void initialData(int&,Limits&,Limits&,CashRegister*);
+void printCashRegisters(const CashRegister*);
+int sleep(const float);
+int min(const CashRegister*);
+
 int main(){
 
-	List waiting;
-	List cashRegister[3];
+	srand(time(NULL));
+	List waitingQueue;
+	CashRegister cashQueue[N];
+	DeltaList shopQueue;
+	
 	Limits new_client_time;
 	Limits shopping_time;
+	
 	int simulation_time;
+	int avalibleCart = 0;
 	int current_time = 0;
 	int client_time = 0;
 	int shop_time = 0;
+	int totalCompleted = 0;
 
-	srand(time(NULL));
-	initialData(simulation_time, new_client_time, shopping_time);
+	initialData(simulation_time, new_client_time, shopping_time, cashQueue);
 
 	while(current_time < simulation_time){
 
+		system("cls || clear");
+
 		if(!client_time){
-			waiting.push(Client("Cliente"));
+			waitingQueue.push(shopping_time.randValue());
 			client_time = new_client_time.randValue();
 		}
 
-		cout << waiting << endl;
-		cout << "Tiempo transcurrido: " << current_time << endl;
-		cout << "Tiempo restante: " << simulation_time - current_time << endl;
-		client_time--;
-		current_time += sleep(1);
-	}
+		if(!waitingQueue.empty() && avalibleCart < 20){
+			shopQueue.push(waitingQueue.front());
+			waitingQueue.pop();
+			avalibleCart++;
+		}
 
-	cout << waiting;
+		while(!shopQueue.empty() && !shopQueue.front().time){
+			int pos = min(cashQueue);
+			cashQueue[pos].clients.push(cashQueue[pos].time);
+			shopQueue.pop();
+		}
+
+		for(int i=0; i<N; i++){
+			if(!cashQueue[i].clients.empty() && !cashQueue[i].clients.front().time){
+				cashQueue[i].clients.pop();
+				avalibleCart--;
+				totalCompleted++;
+			}
+			cashQueue[i].clients.decrementTime();
+		}
+
+		cout << "\n\n\t----------\tEn espera\t----------\n\t";
+		cout << waitingQueue << endl;
+		cout << "\n\tTotal en Espera: " << waitingQueue.getLength(); 
+
+		cout << "\n\n\t----------\tEn Compra\t----------\n\t";
+		cout << shopQueue << endl;
+		cout << "\n\tTotal en Compra: " << shopQueue.getLength() << endl;
+
+		printCashRegisters(cashQueue);
+
+		cout << "\tTiempo Transcurrido: " << current_time << " sg" << endl;
+		cout << "\tTiempo Restante: " << simulation_time - current_time << " sg" << endl;
+		cout << "\tTotal Atendidos: " << totalCompleted << " Clientes Atendidos" << endl;
+
+		client_time--;
+		shopQueue.decrementTime();
+		current_time += sleep(.2);
+	}
 
     return 0;
 }
 
-void initialData(int& simulation_time, Limits& new_client_time, Limits& shop_time){
+void initialData(int& simulation_time, Limits& new_client_time,
+				Limits& shop_time, CashRegister* cashQueue){
 
 	cout << "Ingrese el tiempo de ejecucion (seg): ";
 	cin >> simulation_time;
@@ -76,6 +122,29 @@ void initialData(int& simulation_time, Limits& new_client_time, Limits& shop_tim
 	cout << "Limite superior para la compra (seg): ";
 	cin >> shop_time.upper;
 
+	for(int i=0; i<N; i++){
+		cout << "Tiempo de Caja #" << i+1 << ": ";
+		cin >> cashQueue[i].time;
+	}
+
+}
+
+void printCashRegisters(const CashRegister* cashQueue){
+
+	int acumLength = 0;
+
+	for(int i=0; i<N; i++){
+
+		acumLength += cashQueue[i].clients.getLength();
+
+		cout << "\n\t----------\tCaja #" << i+1 << " \t----------\n\t";
+		cout << cashQueue[i].clients << endl;
+		cout << "\n\tTotal en Caja #" << i+1 << ": " << cashQueue[i].clients.getLength() << endl;
+		cout << "\tTotal Atendidos en Caja #" << i+1 << ": " << cashQueue[i].clients.getCompleted() << endl;
+	}
+
+	cout << "\n\tTotal en Cajas:" << acumLength << endl;
+
 }
 
 int sleep(const float seconds){
@@ -87,156 +156,13 @@ int sleep(const float seconds){
     return 1;
 }
 
-// // --- funciones desarrolladas ---
-// void option(string& opc){
+int min(const CashRegister* cashQueue){
+	int minLength = cashQueue[0].clients.getLength();
+	int pos = 0;
 
-// 	do{
-// 		system("cls || clear");
+	for(int i=1; i<N; i++)
+		if(minLength > cashQueue[i].clients.getLength())
+			pos = i;
 
-// 		cout << "\t\t--- Ingrese una opcion ---" << endl;
-// 		cout << "\t\t[1] Iniciar la simulacion" << endl;
-// 		cout << "\t\t[2] Salir" << endl;
-// 		cout << "\t\tOPC [ ]\b\b";
-// 		cin >> opc;
-// 		fflush(stdin);
-// 	} while(opc != "1" && opc != "2");
-// 	return;
-// }
-
-// void question(List& l[3], int& timeSimulation, int& randL, int& randClP){
-// 	int tCaja;
-
-// 	system("cls || clear");
-// 	cout << "\t\tIngresa cuanto tarda la simulacion y como se va completando: \n\n" << endl;
-// 	cin >> timeSimulation;
-// 	fflush(stdin);
-
-// 	cout << "\t\tIngresar rango de tiempo en el que llegan los clientes al local: \n" << endl;
-// 	cin >> randL;
-// 	fflush(stdin);
-
-// 	for (int i = 0; i < 3; ++i){
-// 		cout << "\n\t\tIngresa el tiempo en que tardan los clientes en caja " << i << " :" << endl;
-// 		cin >> tCaja; 
-
-// 		if (i == 0) { l[0].timeCaja(tCaja); }
-// 		else if (i == 1) { l[1].timeCaja(tCaja); }
-// 		else if (i == 2) { l[2].timeCaja(tCaja); }
-// 		fflush(stdin);
-// 	}
-
-// 	cout << "\n\n\t\tIngresar rango de tiempo en el que tarda el cliente buscando productos: " << endl;
-// 	cin >> randClP;
-// 	fflush(stdin);
-// 	return;
-// }
-
-// void shopping(){
-// 	srand(0); //numeros aleatorios que se repiten. 
-//     return rand()% randClP + 1;
-// }
-
-// void cola(){
-// 	return;
-// }
-
-// void process(int carrito, int timeSimulation, List& l[3], int randL){
-// 	// variabes
-// 	int iter = 0;
-// 	int i = 0, j = 0, z = 0;
-
-// 	while(timeSimulation != 0){
-// 		cout << timeSimulation-- << endl;
-
-// 		if(randL == iter++){// clientes que llegan al local
-// 		 	clientes++;
-// 		 	iter = 0; // se reinicia el conteo
-// 		} 
-
-// 		if(time++ == shopping()) // tiempo en que tardan comprando, se realentiza
-// 			// colocar en la cola
-
-// 		if (carrito != 0 || clientes != 0){ l[0].push(); }
-// 		if (carrito != 0 || clientes != 0){ l[1].push(); }
-// 		if (carrito != 0 || clientes != 0){ l[2].push(); }
-
-// 		cout << "Numero de carritos en la caja 1: " << l[0].length() << endl;
-// 		cout << "Numero de carritos en la caja 2: " << l[1].length() << endl;
-// 		cout << "Numero de carritos en la caja 3: " << l[2].length() << endl;
-
-// 		Sleep(1000); // tiempo (seg) en el que tarda de comprar o culminar los clientes  
-
-// 		// Personas que salieron de la caja
-// 		if(l[0].getTime() == i++) { l[0].pop(); }
-// 		if(l[1].getTime() == j++) { l[1].pop(); }
-// 		if(l[2].getTime() == z++) { l[2].pop(); }
-// 	}
-
-// 	// culminacion de la simulacion
-// 	cout << "\nLongitud maxima de las colas: " << lengthMax(l[0]) << endl;
-// 	cout << "\nLongitud maxima de las colas: " << lengthMax(l[1]) << endl;
-// 	cout << "\nLongitud maxima de las colas: " << lengthMax(l[2]) << endl;
-
-// 	// CREAR UJNA VARIABLE PARA LAS LONGITUDES DE CADA UNA
-// 	cout << "\nLongitud maxima de las colas: " << lengthMax(l[0])+lengthMax(l[1])+lengthMax(l[2])/3 << endl;
-
-// 	cout << "" << endl; // MOSTRAR TIEMPO POR CARRITO 
-
-// 	// CREAR UJNA VARIABLE PARA LOS TIEMPOS DE CADA UNA DE ALS CAJAS
-// 	cout << "\nPromedio de tiempo por clientes en caja: " << AverageTimeG(l[0]) << endl;
-// 	cout << "\nPromedio de tiempo por clientes en caja: " << AverageTimeG(l[1]) << endl;
-// 	cout << "\nPromedio de tiempo por clientes en caja: " << AverageTimeG(l[2]) << endl;
-	
-// 	cout << "\nPromedio de tiempo por clientes en caja: " << AverageTimeG(l[0])+AverageTimeG(l[1])+AverageTimeG(l[2])/3 << endl;
-
-// 	cout << "Maximo de clientes en el local: " << clienteG << endl; // clientes en la tienda
-// 	cout << "Maximo de clientes en el local: " << clienteMax << endl; // maximo de clientes
-
-// 	cout << "\n\n\t\t--- Se acabo la simulacion ---"
-
-// 	return;
-// }
-
-// int lengthMax(List& Caja){ // longitud maxima
-// 	int length = Caja.car;
-
-// 	while( !Caja.empty() )
-// 		if (length > car->next)
-// 			length = car;
-// 	return length;
-// }
-
-// int AverageTimeG(){ // promedio de tiempo global
-// 	int mean = 0, iter = 0;
-
-// 	while( !Caja1.empty() && !caja2.empty() && !caja3.empty() ){
-// 		if(caja1.empty() != false){
-// 			acum+=caja1.getTime();
-// 			caja1 = caja1->next;
-// 		}else if(caja2.empty() != false) {
-// 			acum+=caja2.getTime();
-// 			caja2 = caja2->next;
-// 		}else if(caja3.empty() != false) {
-// 			acum+=caja3.getTime();
-// 			caja3 = caja3->next;
-// 		}
-
-// 		++iter;
-// 	}
-
-// 	return acum/i;
-// }
-
-// int AverageTime(){ // promedio de tiempo
-// 	int mean = 0, iter = 0;
-
-// 	while( !Caja1.empty() && !caja2.empty() && !caja3.empty() ){
-// 		acum+=time;
-// 		++iter;
-// 	}
-// 	return acum/i;
-// }
-
-// int nroClientes(){
-// 	return acum;
-// }
+	return pos;
+}
