@@ -30,6 +30,7 @@ struct CashRegister{
 
 void initialData(int&,Limits&,Limits&,CashRegister*);
 void printCashRegisters(const CashRegister*);
+void printLengthSummary(const CashRegister*);
 int sleep(const float);
 int min(const CashRegister*);
 
@@ -98,8 +99,13 @@ int main(){
 
 		client_time--;
 		shopQueue.decrementTime();
-		current_time += sleep(.2);
+		current_time += sleep(0);
 	}
+
+
+	cout << "\n\t----------\tRESUMEN FINAL\t----------\n";
+	printLengthSummary(cashQueue);
+	
 
     return 0;
 }
@@ -145,6 +151,18 @@ void printCashRegisters(const CashRegister* cashQueue){
 
 	cout << "\n\tTotal en Cajas:" << acumLength << endl;
 
+}
+
+void printLengthSummary(const CashRegister* cashQueue){
+	int acumLength = 0;
+
+	cout << "- Longitudes Maximas:" << endl;
+	for(int i=0; i<N; i++){
+		acumLength += cashQueue[i].clients.getLength();
+		cout << "\t\t- Caja #" << i+1 << cashQueue[i].clients.getMaxLength();
+	}
+
+	cout << "\t- Longitud Promedio al finalizar: " << acumLength/N << endl;
 }
 
 int sleep(const float seconds){
